@@ -2,8 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:test_mqtt_ssl_tls/widgets/mqttView.dart';
 import 'package:test_mqtt_ssl_tls/mqtt/state/MQTTAppState.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
 
-void main() => runApp(MyApp());
+void main() {
+  HttpOverrides.global = MyHttpOverrides();
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MyApp());
+}
+
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
+  }
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.

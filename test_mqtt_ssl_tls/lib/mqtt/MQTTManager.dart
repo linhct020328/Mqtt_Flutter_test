@@ -1,8 +1,6 @@
-import 'dart:convert';
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
 import 'package:test_mqtt_ssl_tls/mqtt/state/MQTTAppState.dart';
@@ -20,80 +18,40 @@ class MQTTManager {
   final String _password;
 
   MQTTManager(
-      {required String host,
-        required String topic,
-        required String username,
-        required String password,
-        required String clientId,
+      {
         required MQTTAppState state})
-      : _clientId = clientId,
-        _host = host,
-        _topic = topic,
-        _username = username,
-        _password = password,
+      : _host = '192.168.0.103',
+        _clientId = 'mqtt-servo',
+        _topic = 'testServo',
+        _username = 'linh99',
+        _password = '1234567890',
         _currentState = state;
 
   Future<void> initializeMQTTClient() async  {
     _client = MqttServerClient.withPort(_host, _clientId, 1883);
-    _client!.secure = true;
-
-    final SecurityContext context = new SecurityContext(withTrustedRoots: true);
-    final ByteData cerData = await rootBundle.load('assets/certs_ubuntu/mqtt_ca.crt');
-    // context.setClientAuthoritiesBytes(cerData.buffer.asUint8List());
-    context.setTrustedCertificatesBytes(cerData.buffer.asInt8List());
-
-    final ByteData clientCrtData = await rootBundle.load('assets/certs_ubuntu/mqtt_client.crt');
-    context.useCertificateChainBytes(clientCrtData.buffer.asUint8List());
-
-    final ByteData clientKeyData = await rootBundle.load('assets/certs_ubuntu/mqtt_client.key');
-    context.usePrivateKeyBytes(clientKeyData.buffer.asUint8List());
-
-    _client!.securityContext = context;
-    _client!.setProtocolV311();
-    _client!.logging(on: true);
-    // _client!.autoReconnect = true;
-    _client!.onBadCertificate = (dynamic a) => true;
-
-    // _client!.keepAlivePeriod = 20;
-    // _client!.setProtocolV311();
-    // _client!.logging(on: true);
-    //
-    // final context = SecurityContext.defaultContext;
-    // final ByteData cerData = await rootBundle.load('assets/certs_ubuntu/mqtt_ca.crt');
-    // context.setClientAuthoritiesBytes(cerData.buffer.asUint8List());
-    // // context.setTrustedCertificatesBytes(cerData.buffer.asInt8List());
-    //
-    // final ByteData clientCrtData = await rootBundle.load('assets/certs_ubuntu/mqtt_client.crt');
-    // context.useCertificateChainBytes(clientCrtData.buffer.asUint8List());
-    //
-    // final ByteData clientKeyData = await rootBundle.load('assets/certs_ubuntu/mqtt_client.key');
-    // context.usePrivateKeyBytes(clientKeyData.buffer.asUint8List());
-
-    // final String cerData = await rootBundle.loadString('assets/certs_ubuntu/mqtt_ca.crt');
-    // final String clientCrtData = await rootBundle.loadString('assets/certs_ubuntu/mqtt_client.crt');
-    // final String clientKeyData = await rootBundle.loadString('assets/certs_ubuntu/mqtt_client.key');
-    // final List<int> certBytes = utf8.encode(cerData);
-    // final List<int> clientCrtBytes = utf8.encode(clientCrtData);
-    // final List<int> clientKeyBytes = utf8.encode(clientKeyData);
-    // context.setTrustedCertificatesBytes(certBytes);
-    // context.useCertificateChainBytes(clientCrtBytes);
-    // context.usePrivateKeyBytes(clientKeyBytes);
-
-    // _client!.securityContext = context;
-    // _client!.secure = true;
-    // _client!.onBadCertificate = (dynamic a) => true;
-
+    // _client = MqttServerClient(_host, _clientId);
+    // _client!.port = 1883;
+    _client!.keepAlivePeriod = 20;
     _client!.onDisconnected = onDisconnected;
+    _client!.secure = true;
+    _client!.logging(on: true);
 
-    /// Add the successful connection callback
     _client!.onConnected = onConnected;
     _client!.onSubscribed = onSubscribed;
 
+    final context = SecurityContext.defaultContext;
+
+    String clientAuth = await rootBundle.loadString("assets/certs_localhost/mqtt_ca.crt");
+
+    context.setTrustedCertificatesBytes(clientAuth.codeUnits);// context.setClientAuthoritiesBytes(clientAuth.codeUnits);
+    String trustedCer = await rootBundle.loadString("assets/certs_localhost/mqtt_client.crt");
+    context.useCertificateChainBytes(trustedCer.codeUnits);
+    String privateKey = await rootBundle.loadString("assets/certs_localhost/mqtt_client.key");
+    context.usePrivateKeyBytes(privateKey.codeUnits);
+
     final MqttConnectMessage connMess = MqttConnectMessage()
         .authenticateAs(_username, _password)
-        .keepAliveFor(60)
-        .withWillTopic(
-        'willtopic') // If you set this you must set a will message
+        .withWillTopic('will topic') // If you set this you must set a will message
         .withWillMessage('Will message')
         .startClean() // Non persistent session for testing
         .withWillQos(MqttQos.atLeastOnce);

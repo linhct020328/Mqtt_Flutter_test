@@ -12,13 +12,7 @@ class MQTTView extends StatefulWidget {
 }
 
 class _MQTTViewState extends State<MQTTView> {
-  final TextEditingController _hostTextController = TextEditingController();
   final TextEditingController _messageTextController = TextEditingController();
-  // final TextEditingController _portTextController = TextEditingController();
-  final TextEditingController _clientIdTextController = TextEditingController();
-  final TextEditingController _topicTextController = TextEditingController();
-  final TextEditingController _usernameTextController = TextEditingController();
-  final TextEditingController _passwordTextController = TextEditingController();
 
   late MQTTAppState currentAppState;
   late MQTTManager manager;
@@ -26,35 +20,13 @@ class _MQTTViewState extends State<MQTTView> {
   @override
   void initState() {
     super.initState();
-
-    /*
-    _hostTextController.addListener(_printLatestValue);
-    _messageTextController.addListener(_printLatestValue);
-    _topicTextController.addListener(_printLatestValue);
-
-     */
   }
 
   @override
   void dispose() {
-    _hostTextController.dispose();
-    // _portTextController.dispose();
-    _clientIdTextController.dispose();
     _messageTextController.dispose();
-    _topicTextController.dispose();
-    _usernameTextController.dispose();
-    _passwordTextController.dispose();
     super.dispose();
   }
-
-  /*
-  _printLatestValue() {
-    print("Second text field: ${_hostTextController.text}");
-    print("Second text field: ${_messageTextController.text}");
-    print("Second text field: ${_topicTextController.text}");
-  }
-
-   */
 
   @override
   Widget build(BuildContext context) {
@@ -88,35 +60,10 @@ class _MQTTViewState extends State<MQTTView> {
       padding: const EdgeInsets.all(20.0),
       child: Column(
         children: <Widget>[
-          _buildTextFieldWith(_hostTextController, 'Enter broker address',
-              currentAppState.getAppConnectionState),
           const SizedBox(height: 10),
-          _buildTextFieldWith(
-              _topicTextController,
-              'Enter a topic to subscribe or listen',
-              currentAppState.getAppConnectionState),
-          // _buildTextFieldWith(
-          //     _portTextController,
-          //     'Enter a port',
-          //     currentAppState.getAppConnectionState),
-          _buildTextFieldWith(
-              _clientIdTextController,
-              'Enter a client id',
-              currentAppState.getAppConnectionState),
-          _buildTextFieldWith(
-              _usernameTextController,
-              'Enter a username',
-              currentAppState.getAppConnectionState),
-          _buildTextFieldWith(
-              _passwordTextController,
-              'Enter a password',
-              currentAppState.getAppConnectionState),
+          _buildConnecteButtonFrom(currentAppState.getAppConnectionState),
           const SizedBox(height: 10),
           _buildPublishMessageRow(),
-          const SizedBox(height: 10),
-          _buildConnecteButtonFrom(currentAppState.getAppConnectionState)
-          // const SizedBox(height: 10),
-          // const SizedBox(height: 10),
         ],
       ),
     );
@@ -153,21 +100,7 @@ class _MQTTViewState extends State<MQTTView> {
     if (controller == _messageTextController &&
         state == MQTTAppConnectionState.connected) {
         shouldEnable = true;
-    } else if ((controller == _hostTextController &&
-        state == MQTTAppConnectionState.disconnected) ||
-        (controller == _clientIdTextController &&
-            state == MQTTAppConnectionState.disconnected) ||
-        (controller == _topicTextController &&
-            state == MQTTAppConnectionState.disconnected) ||
-        (controller == _usernameTextController &&
-            state == MQTTAppConnectionState.disconnected) ||
-        (controller == _passwordTextController &&
-            state == MQTTAppConnectionState.disconnected)
-        ) {
-      shouldEnable = true;
     }
-    //(controller == _portTextController &&
-    //             state == MQTTAppConnectionState.disconnected) ||
     return TextField(
         enabled: shouldEnable,
         controller: controller,
@@ -245,19 +178,7 @@ class _MQTTViewState extends State<MQTTView> {
   }
 
   void _configureAndConnect() {
-    // ignore: flutter_style_todos
-    // TODO: Use UUID
-    // String osPrefix = 'Flutter_iOS';
-    // if (Platform.isAndroid) {
-    //   osPrefix = 'Flutter_Android';
-    // }
     manager = MQTTManager(
-        host: _hostTextController.text.trim(),
-        topic: _topicTextController.text.trim(),
-        username: _usernameTextController.text.trim(),
-        password: _passwordTextController.text.trim(),
-        // port: _portTextController.text.trim(),
-        clientId: _clientIdTextController.text.trim(),
         state: currentAppState);
     manager.initializeMQTTClient();
     manager.connect();

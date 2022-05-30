@@ -6,25 +6,25 @@ import 'package:flustars/flustars.dart';
 var _KEY = "qwertyuiopasdfghjklzxcvbnm123456";
 var _IV = "caothithuylinh99";
 
-//128的keysize=16，192keysize=24，256keysize=32
+//Aes 128: keysize=16，192: keysize=24，256: keysize=32
 
 class crypt {
-  //Base64编码
+  //Base64 ENCODE
   static String encodeBase64(String data) {
     return base64Encode(utf8.encode(data));
   }
 
-  //Base64解码
+  //Base64 DECODE
   static String decodeBase64(String data) {
     return String.fromCharCodes(base64Decode(data));
   }
 
-  // md5 加密 32位小写
+  // md5 ENCODE 32
   static String encodeMd5(String plainText) {
     return EncryptUtil.encodeMd5(plainText);
   }
 
-  //AES加密
+  //AES ENCODE
   static aesEncrypt(plainText) {
     try {
       final key = Key.fromUtf8(_KEY);
@@ -38,7 +38,7 @@ class crypt {
     }
   }
 
-  //AES解密
+  //AES DECODE
   static dynamic aesDecrypt(encrypted) {
     try {
       final key = Key.fromUtf8(_KEY);
