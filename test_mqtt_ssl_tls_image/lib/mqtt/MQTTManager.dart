@@ -3,9 +3,9 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:mqtt_client/mqtt_client.dart';
-import 'package:test_mqtt_ssl_tls/mqtt/state/MQTTAppState.dart';
+import 'package:test_mqtt_ssl_tls_image/mqtt/state/MQTTAppState.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
-import 'package:test_mqtt_ssl_tls/crypt/crypt.dart';
+import 'package:test_mqtt_ssl_tls_image/crypt/crypt.dart';
 
 class MQTTManager {
   // Private instance of client
@@ -20,7 +20,7 @@ class MQTTManager {
   MQTTManager(
       {
         required MQTTAppState state})
-      : _host = '192.168.227.129',
+      : _host = '192.168.0.103',
         _clientId = 'mqtt-servo',
         _topic = 'testServo',
         _username = 'linh99',
@@ -41,12 +41,12 @@ class MQTTManager {
 
     final context = SecurityContext.defaultContext;
 
-    String clientAuth = await rootBundle.loadString("assets/certs_ubuntu/mqtt_ca.crt");
+    String clientAuth = await rootBundle.loadString("assets/certs_localhost/mqtt_ca.crt");
 
     context.setTrustedCertificatesBytes(clientAuth.codeUnits);// context.setClientAuthoritiesBytes(clientAuth.codeUnits);
-    String trustedCer = await rootBundle.loadString("assets/certs_ubuntu/mqtt_client.crt");
+    String trustedCer = await rootBundle.loadString("assets/certs_localhost/mqtt_client.crt");
     context.useCertificateChainBytes(trustedCer.codeUnits);
-    String privateKey = await rootBundle.loadString("assets/certs_ubuntu/mqtt_client.key");
+    String privateKey = await rootBundle.loadString("assets/certs_localhost/mqtt_client.key");
     context.usePrivateKeyBytes(privateKey.codeUnits);
 
     final MqttConnectMessage connMess = MqttConnectMessage()
